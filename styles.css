@@ -20,7 +20,7 @@ footer p {
   margin: 0;
   padding: 0;
   font-family: "Pacifico";
-  font-size: 2em;
+  font-size: 1em;
   color: black;
 }
 
@@ -88,6 +88,7 @@ main {
   border-radius: 5em;
   background-image: url("./assets/images/swords.png");
   background-size: contain;
+  background-repeat: no-repeat;
   background-color: rgba(255, 255, 255, 0.85);
 }
 
@@ -191,6 +192,10 @@ main {
   animation-timing-function: ease-out;
 }
 
+#p1-card {
+  border-style: none;
+}
+
 #p1-war-array {
   width: 33%;
   height: 100%;
@@ -203,6 +208,10 @@ main {
 #p1-war-array img {
   width: 6%;
   height: 90%;
+}
+
+#p2-card {
+  border-style: none;
 }
 
 #p2-war-array {
