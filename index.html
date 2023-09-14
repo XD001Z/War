@@ -7,13 +7,13 @@
     <link rel="stylesheet" href="./styles.css">
     <title>War Card Game</title>
 </head>
-<body>
+<body id="screen">
     <header>
         <h1>WAR</h1>
     </header>
     <main>
         <div class="playing-area">
-            <div class="card deck-card">
+            <div id="p1-deck" class="card deck-card">
                 <img id="p1-animation-card" src="./assets/images/red_back.png" alt="card to animate">
                 <img class="card-img" src="./assets/images/red_back.png" alt="top card">
                 <div class="card-img-overlay deck-overlay">
@@ -22,7 +22,7 @@
             </div>
             <div id="p1-card" class="card deck-card"></div>
             <div id="p2-card" class="card deck-card"></div>
-            <div class="card deck-card">
+            <div id="p2-deck" class="card deck-card">
                 <img id="p2-animation-card" src="./assets/images/red_back.png" alt="card to animate">
                 <img class="card-img" src="./assets/images/red_back.png" alt="top card">
                 <div class="card-img-overlay deck-overlay">
@@ -31,15 +31,18 @@
             </div>
         </div>
         <div class="button-area">
-            <div id="p1-war-array" class="war-array"></div>
+            <div id="p1-war-array"></div>
             <button id="battle-btn"></button>
-            <div id="p2-war-array" class="war-array"></div>
+            <div id="p2-war-array"></div>
         </div>
     </main>
     <footer>
-        <!--
-
-        -->
+        <p>
+            . . .through me you enter into the city of woes,
+            through me you enter into eternal pain, 
+            through me you enter the population of loss.
+            . . .abandon all hope, you who enter here.
+        </p>
     </footer>
     <script src="./src/war.js"></script>
     <script src="./src/index.js"></script>

@@ -1,4 +1,3 @@
-
 /* Create array(deck) of objects(cards )*/
 const deck = [
     {value: 2, img: "2C.png"},
@@ -68,33 +67,155 @@ const deck = [
 ];
 
 /* Function for animating the players' cards */
-function animateCards(p1AnimatedCard, p2AnimatedCard, deck1Top=null, deck2Top=null) {
-    p1AnimatedCard.classList.add("p1-card-animation");
-    p2AnimatedCard.classList.add("p2-card-animation");
+function animateCards(p1AnimatedCard, p2AnimatedCard, p1Deck, p2Deck, card1, card2) {
+    let p1FrontCard = document.createElement("img");
+    let p2FrontCard = document.createElement("img");
 
-}
+    p1FrontCard.src = `./assets/images/${card1.img}`;
+    p2FrontCard.src = `./assets/images/${card2.img}`;
+
+    p1Deck.appendChild(p1FrontCard);
+    p2Deck.appendChild(p2FrontCard);
+
+    p1AnimatedCard.classList.toggle("p1-card-animation");
+    p1FrontCard.classList.toggle("p1-front-card-animation");
+
+    p2AnimatedCard.classList.toggle("p2-card-animation");
+    p2FrontCard.classList.toggle("p2-front-card-animation");
+
+    setTimeout(() => {
+        p1AnimatedCard.classList.toggle("p1-card-animation");
+        p2AnimatedCard.classList.toggle("p2-card-animation");
+        p1Deck.removeChild(p1FrontCard);
+        p2Deck.removeChild(p2FrontCard);
+    }, 1500);
+};
+
+/* Function for animating each players' cards in the occurence of a tie(war) */
+function animateWar(flag, p1WarArray, p2WarArray, card1=undefined, card2=undefined) {
+    if (flag) {
+        if (card1 !== undefined && card2 !== undefined) {
+            let warCard1 = document.createElement("img"); 
+            let warCard2 = document.createElement("img"); 
+
+            warCard1.src = `./assets/images/${card1.img}`;
+            warCard2.src = `./assets/images/${card2.img}`;
+
+            p1WarArray.appendChild(warCard1);
+            p2WarArray.appendChild(warCard2);
+
+            warCard1.classList.toggle("war-card-animation");
+            warCard2.classList.toggle("war-card-animation");
+        };
+    }
+    else {
+        p1WarArray.childNodes.forEach((element) => {
+            element.classList.toggle("war-card-animation-reverse");
+        });
+        p2WarArray.childNodes.forEach((element) => {
+            element.classList.toggle("war-card-animation-reverse");
+        });
+
+        setTimeout(() => {
+            p1WarArray.innerHTML = "";
+            p2WarArray.innerHTML = "";
+        }, 600);
+    };
+};
+
+/* Function for displaying the final screen when the end of the game is determined */
+function gameOverScreen(resultMessage, screen) {
+    let transitionScreen = document.createElement("div");
+
+    let message = document.createElement("h1");
+    message.innerHTML = resultMessage;
+
+    let replayButton = document.createElement("button");
+    replayButton.innerHTML = "Play Again";
+    replayButton.addEventListener('click', () => {
+        window.location.reload(true);
+    });
+
+    screen.innerHTML = "";
+    screen.classList.toggle("game-over-screen");
+
+    screen.appendChild(message);
+    screen.appendChild(replayButton);
+    screen.appendChild(transitionScreen);
+
+    transitionScreen.classList.toggle("game-over-transition-animation");
+};
+
+/* Function for processing the result of a turn(battle) */
+function processTurn(war, p1CardCount, p2CardCount, p1WarArray, p2WarArray) {
+    switch (war.compareValues(war.deck1[0], war.deck2[0])) {
+        case 1:
+            war.deck1.push(war.deck1.splice(0,1)[0]);
+            war.deck1.push(war.deck2.splice(0,1)[0]);
+            if (war.deck1.length !== 0 || war.deck2.length !== 0) {
+                animateWar(false, p1WarArray, p2WarArray);
+                war.deck1.push(...war.warArray1);
+                war.deck1.push(...war.warArray2);
+                war.warArray1 = [];
+                war.warArray2 = [];
+            };
+            setTimeout(() => {
+                p1CardCount.innerHTML = war.deck1.length;
+                p2CardCount.innerHTML = war.deck2.length;
+            }, 700);
+            break;
+        case -1:
+            war.deck2.push(war.deck1.splice(0,1)[0]);
+            war.deck2.push(war.deck2.splice(0,1)[0]);
+            if (war.deck1.length !== 0 || war.deck2.length !== 0) {
+                animateWar(false, p1WarArray, p2WarArray);
+                war.deck2.push(...war.warArray1);
+                war.deck2.push(...war.warArray2);
+                war.warArray1 = [];
+                war.warArray2 = [];
+            };
+            setTimeout(() => {
+                p1CardCount.innerHTML = war.deck1.length;
+                p2CardCount.innerHTML = war.deck2.length;
+            }, 700);
+            break;
+        case 0:
+            for (let i = 0; i < 4; i++) {
+                animateWar(true, p1WarArray, p2WarArray, war.deck1[0], war.deck2[0]);
+                war.warArray1.push(war.deck1.splice(0,1)[0]);
+                war.warArray2.push(war.deck2.splice(0,1)[0]);
+            };
+            setTimeout(() => {
+                p1CardCount.innerHTML = war.deck1.length;
+                p2CardCount.innerHTML = war.deck2.length;
+            }, 700);   
+            break;
+    };
+};
 
 /* Implement Knuth Shuffle */
 function shuffle(deck) {
     let currentIndex = deck.length;
     let randomIndex;
-
     while (currentIndex > 0) {
         randomIndex = Math.floor(Math.random() * currentIndex);
         currentIndex--;
-
         [deck[currentIndex], deck[randomIndex]] = [deck[randomIndex], deck[currentIndex]];
-    }
+    };
     return deck;
-}
+};
 
 /* Create War Game with shuffled array(deck) */
-const shuffledDeck = shuffle(deck);
-const war = new War(deck.slice(0,shuffledDeck.length/2), deck.slice(shuffledDeck.length/2));
+shuffle(deck);
+const war = new War(deck.slice(0,deck.length/2), deck.slice(deck.length/2));
 
 /* Get the id of each players'card to animate */
 let p1AnimatedCard = document.getElementById("p1-animation-card");
 let p2AnimatedCard = document.getElementById("p2-animation-card");
+
+/* Get the id of each players' deck */
+let p1Deck = document.getElementById("p1-deck");
+let p2Deck = document.getElementById("p2-deck");
 
 /* Get the id of the html element that contains each players' card count */
 let p1CardCount = document.getElementById("p1-card-count");
@@ -104,70 +225,41 @@ let p2CardCount = document.getElementById("p2-card-count");
 let p1WarArray = document.getElementById("p1-war-array");
 let p2WarArray = document.getElementById("p2-war-array");
 
+/* Get the id of the body which will be our entire playing screen */
+let screen = document.getElementById("screen");
+
+/* Get the id of the button that progresses the game */
+let battleButton = document.getElementById("battle-btn");
+
 /* Initialize each players players card count on window load */
 window.addEventListener("load", () => {
     p1CardCount.innerHTML = war.deck1.length;
     p2CardCount.innerHTML = war.deck2.length;
-})
+});
 
-let battleButton = document.getElementById("battle-btn");
+/* Bind the button to a function that carries out the game's logic on click */
 battleButton.addEventListener("click", () => {
-    animateCards(p1AnimatedCard, p2AnimatedCard)
-
-    // document.querySelector("#p1-card").innerHTML = `<img class="card-img" src="./assets/images/${war.deck1[0].img}" alt="${war.deck1[0].img.slice(0,-4)}">`
-    // document.querySelector("#p2-card").innerHTML = `<img class="card-img" src="./assets/images/${war.deck2[0].img}" alt="${war.deck2[0].img.slice(0,-4)}">`
-
-    // switch (war.compareValues(war.deck1[0], war.deck2[0])) {
-    //     case 1:
-    //         war.deck1.push(war.deck1.splice(0,1)[0]);
-    //         war.deck1.push(war.deck2.splice(0,1)[0]);
-    //         if ( war.warArray1.length !== 0) {
-    //             war.deck1.push(...war.warArray1)
-    //             war.deck1.push(...war.warArray2)
-    //             war.warArray1 = []
-    //             war.warArray2 = []
-    //         }
-    //         p1CardCount.innerHTML = war.deck1.length;
-    //         p2CardCount.innerHTML = war.deck2.length;
-    //         break;
-    //     case -1:
-    //         war.deck2.push(war.deck1.splice(0,1)[0]);
-    //         war.deck2.push(war.deck2.splice(0,1)[0]);
-    //         if ( war.warArray2.length !== 0) {
-    //             war.deck2.push(...war.warArray1)
-    //             war.deck2.push(...war.warArray2)
-    //             war.warArray1 = []
-    //             war.warArray2 = []
-    //         }
-    //         p1CardCount.innerHTML = war.deck1.length;
-    //         p2CardCount.innerHTML = war.deck2.length;
-    //         break;
-    //     case 0:
-    //         for (let i = 0; i < 4; i++) {
-    //             const node1 = document.createElement("img")
-    //             node1.setAttribute("src", "./")
-    //             p1WarArray.appendChild()
-    //             p2WarArray.appendChild()
-    //             war.warArray1.push(war.deck1.splice(0,1)[0])
-    //             war.warArray2.push(war.deck2.splice(0,1)[0])
-    //             p1CardCount.innerHTML = war.deck1.length;
-    //             p2CardCount.innerHTML = war.deck2.length;
-    //         }
-    //         break;
-    // }
-
-    // if (war.checkForWinner()) {
-    //     switch (war.checkForWinner()) {
-    //         case 1:
-    //             alert("Player 1 Wins!")
-    //             break;
-    //         case -1:
-    //             alert("Player 2 Wins!")
-    //             break;
-    //         case 0:
-    //             alert("It's a tie.")
-    //             break;
-    //     }
-    // }
-})
-
+    battleButton.disabled = true;
+    animateCards(p1AnimatedCard, p2AnimatedCard, p1Deck, p2Deck, war.deck1[0], war.deck2[0]);
+    processTurn(war, p1CardCount, p2CardCount, p1WarArray, p2WarArray);
+    switch (war.checkForWinner()) {
+        case 1:
+            setTimeout(() => {
+                gameOverScreen("Player 1 Wins!", screen);
+            }, 1500);
+            break;
+        case -1:
+            setTimeout(() => {
+                gameOverScreen("Player 2 Wins!", screen);
+            }, 1500);
+            break;
+        case 0:
+            setTimeout(() => {
+                gameOverScreen("It's a tie...", screen);
+            }, 1500);
+            break;
+    };
+    setTimeout(() => {
+        battleButton.disabled = false;
+    }, 1500);
+});
